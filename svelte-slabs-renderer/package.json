@@ -1,0 +1,11 @@
+{
+  "name": "svelte-slabs-renderer",
+  "version": "0.0.1",
+  "description": "Helper to render Svelte slabs on a website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@LiamBigelow",
+  "license": "MIT"
+}

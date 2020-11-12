@@ -109,7 +109,8 @@ module JekyllSvelteSlabs
 
       <<~MSG
         <script>
-          window["#{endpoint}"] = #{svelte_data};
+          window.svelteSlabs = window.svelteSlabs || {};
+          window.svelteSlabs["#{endpoint}"] = #{svelte_data};
         </script>
         <div data-svelte-slab="#{file}" data-svelte-slab-props="window:#{endpoint}">
           #{text}
@@ -121,4 +122,4 @@ module JekyllSvelteSlabs
 
 end
 
-Liquid::Template.register_tag("svelte", JekyllSvelte::Tag)
+Liquid::Template.register_tag("svelte", JekyllSvelteSlabs::Tag)

@@ -33,15 +33,15 @@ export const renderSlabs = (apps, opts) => {
 		const slabName = target.dataset.svelteSlab;
 		const slabPropsKey = target.dataset.svelteSlabProps;
 
-		const app = apps[componentName];
+		const app = apps[slabName];
 		if (app) {
 			const slabProps = resolveProps(slabPropsKey);
 
-			renderedSlabs.push(new app({target, slabProps, hydrate: opts.hydrate}));
+			renderedSlabs.push(new app({target, props: slabProps, hydrate: opts.hydrate}));
 		} else {
 			console.warn(`WARN: Svelte slab "${slabName}" not found`)
 		}
 	}
 
-	return instances;
+	return renderedSlabs;
 }

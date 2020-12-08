@@ -37,7 +37,7 @@ export const renderSlabs = (apps, opts) => {
 		if (app) {
 			const slabProps = resolveProps(slabPropsKey);
 			if (typeof opts.transformProps === 'function') {
-				opts.transformProps(slabProps);
+				opts.transformProps(slabProps, target);
 			}
 
 			renderedSlabs.push(new app({target, props: slabProps, hydrate: opts.hydrate}));

@@ -37,6 +37,32 @@ module JekyllSvelteSlabs
       false
     end
 
+    # Iterate a hash (incl. arrays) to delete named keys
+    def purge_keys_from_hash(params, keys)
+      params.each do |k,v|
+        value = v || k
+
+        if value.is_a?(Hash) || value.is_a?(Array)
+          purge_keys_from_hash(value, keys)
+        else
+          params.delete(k) if keys.include?(k)
+        end
+      end
+    end
+
+    # Remove a bind if specified, as well as any keys listed in the site config
+    def clean_params(context, params)
+      params.delete('bind')
+
+      slab_config = context['site']['svelte_slabs']
+      return unless slab_config
+
+      purge_keys = slab_config['remove_keys']
+      unless purge_keys.nil?
+        purge_keys_from_hash(params, purge_keys)
+      end
+    end
+
     def parse_params(context)
       params = {}
       @params.scan(VALID_SYNTAX) do |key, d_quoted, s_quoted, variable|
@@ -58,6 +84,8 @@ module JekyllSvelteSlabs
           next
         end
       end
+
+      clean_params(context, params)
 
       params
     end

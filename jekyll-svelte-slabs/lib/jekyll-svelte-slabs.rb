@@ -73,6 +73,12 @@ module JekyllSvelteSlabs
                 elsif variable
                   context[variable]
                 end
+                
+        # Turn arrays of Documents into arrays of DocumentDrops
+        # so that the to_json in render pulls the hash not the content
+        if value.class == Array
+          value = value.map {|v| v.class == Jekyll::Document ? v.to_liquid : v}
+        end
 
         params[key] = value
       end

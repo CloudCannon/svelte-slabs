@@ -143,7 +143,7 @@ module JekyllSvelteSlabs
 
       svelte_data = @params ? parse_params(context).to_json : "{}"
       svelte_data = "\"#{Base64.strict_encode64(svelte_data)}\"" if method == "window_b"
-      svelte_data = "\"#{svelte_data.gsub("<", "&rawlt;")}\"" if method == "window_e"
+      svelte_data = "`#{svelte_data.gsub("<", "&rawlt;").gsub("`", "\`")}`" if method == "window_e"
       endpoint = Digest::MD5.hexdigest(svelte_data)
 
       <<~MSG

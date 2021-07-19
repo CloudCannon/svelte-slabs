@@ -135,10 +135,15 @@ module JekyllSvelteSlabs
       # site = context.registers[:site]
       # puts site
 
+      slab_config = context['site']['svelte_slabs'] || {}
+      method = slab_config['method'] || "window"
+
       file = render_variable(context) || @file
       validate_file_name(file)
 
       svelte_data = @params ? parse_params(context).to_json : "{}"
+      svelte_data = "\"#{Base64.strict_encode64(svelte_data)}\"" if method == "window_b"
+      svelte_data = "\"#{svelte_data.gsub("<", "&rawlt;")}\"" if method == "window_e"
       endpoint = Digest::MD5.hexdigest(svelte_data)
 
       <<~MSG
@@ -146,7 +151,7 @@ module JekyllSvelteSlabs
           window.svelteSlabs = window.svelteSlabs || {};
           window.svelteSlabs["#{endpoint}"] = #{svelte_data};
         </script>
-        <div data-svelte-slab="#{file}" data-svelte-slab-props="window:#{endpoint}">
+        <div data-svelte-slab="#{file}" data-svelte-slab-props="#{method}:#{endpoint}">
           #{text}
         </div>
       MSG

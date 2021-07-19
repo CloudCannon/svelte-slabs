@@ -9,6 +9,26 @@ const resolveProps = (propString) => {
 	if (src === 'window') {
 		if (!window.svelteSlabs) return {};
 		return window.svelteSlabs[key] || {};
+	} else if (src === 'window_b') {
+		if (!window.svelteSlabs) return {};
+		let slabData = {};
+		try {
+			slabData = JSON.parse(atob(window.svelteSlabs[key]));
+		} catch(e) {
+			console.error("Svelte slab rendering error:");
+			console.error(e);
+		}
+		return slabData;
+	} else if (src === 'window_e') {
+		if (!window.svelteSlabs) return {};
+		let slabData = {};
+		try {
+			slabData = JSON.parse(window.svelteSlabs[key].replace(/&rawlt;/g, "<"));
+		} catch(e) {
+			console.error("Svelte slab rendering error:");
+			console.error(e);
+		}
+		return slabData;
 	} else if (src === 'endpoint') {
 		console.warn('Endpoints not yet supported');
 		return {};

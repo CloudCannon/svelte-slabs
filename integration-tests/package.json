@@ -1,0 +1,13 @@
+{
+  "name": "integration-tests",
+  "private": true,
+  "scripts": {
+    "test": "node prep.js && cucumber-js --parallel 4 --tags \"not @skip\""
+  },
+  "author": "@bglw",
+  "license": "MIT",
+  "devDependencies": {
+    "@cucumber/cucumber": "^7.3.1",
+    "uuid": "^8.3.2"
+  }
+}

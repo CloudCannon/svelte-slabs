@@ -1,1 +1,4 @@
 *.gem
+Gemfile.lock
+.test-tmp-dir
+node_modules

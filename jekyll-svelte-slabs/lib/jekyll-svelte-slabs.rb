@@ -1,6 +1,7 @@
 require "base64"
 require 'json'
 require 'digest'
+require_relative "./output-data"
 
 module JekyllSvelteSlabs
 
@@ -130,31 +131,42 @@ module JekyllSvelteSlabs
 
     def render(context)
       text = super
-      # puts Base64.encode64(context[@data].to_json)
+      site = context['site']
 
-      # site = context.registers[:site]
-      # puts site
-
-      slab_config = context['site']['svelte_slabs'] || {}
+      slab_config = site['svelte_slabs'] || {}
       method = slab_config['method'] || "window"
 
       file = render_variable(context) || @file
       validate_file_name(file)
 
       svelte_data = @params ? parse_params(context).to_json : "{}"
-      svelte_data = "\"#{Base64.strict_encode64(svelte_data)}\"" if method == "window_b"
-      svelte_data = "`#{svelte_data.gsub("<", "&rawlt;").gsub("`", "\`")}`" if method == "window_e"
+
+      svelte_data = case method
+        when 'window_b' then "\"#{Base64.strict_encode64(svelte_data)}\""
+        when 'window_e' then "`#{svelte_data.gsub("<", "&rawlt;").gsub("`", "\`")}`"
+        else svelte_data
+      end
+
       endpoint = Digest::MD5.hexdigest(svelte_data)
 
-      <<~MSG
-        <script>
-          window.svelteSlabs = window.svelteSlabs || {};
-          window.svelteSlabs["#{endpoint}"] = #{svelte_data};
-        </script>
-        <div data-svelte-slab="#{file}" data-svelte-slab-props="#{method}:#{endpoint}">
-          #{text}
-        </div>
-      MSG
+      if method == 'endpoint'
+        JekyllSvelteSlabs::SiteData.output(context.registers[:site], svelte_data, endpoint);
+        <<~MSG
+          <div data-svelte-slab="#{file}" data-svelte-slab-props="#{method}:#{endpoint}">
+            #{text}
+          </div>
+        MSG
+      else
+        <<~MSG
+          <script>
+            window.svelteSlabs = window.svelteSlabs || {};
+            window.svelteSlabs["#{endpoint}"] = #{svelte_data};
+          </script>
+          <div data-svelte-slab="#{file}" data-svelte-slab-props="#{method}:#{endpoint}">
+            #{text}
+          </div>
+        MSG
+      end
     end
 
   end

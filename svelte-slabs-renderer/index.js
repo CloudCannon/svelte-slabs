@@ -3,7 +3,7 @@
  * @param  {String} propString String defining where to locate the svelte props
  * @return {Object}            Props ready to pass to svelte
  */
-const resolveProps = (propString) => {
+const resolveProps = async (propString, baseUrl) => {
 	if (!propString) return {};
 	const [src, key] = propString.split(':');
 	if (src === 'window') {
@@ -30,8 +30,16 @@ const resolveProps = (propString) => {
 		}
 		return slabData;
 	} else if (src === 'endpoint') {
-		console.warn('Endpoints not yet supported');
-		return {};
+		let slabData = {};
+		try {
+			baseUrl = baseUrl.replace(/\/$/, '');
+			const slabReq = await fetch(`${baseUrl}/_slabs/${key}.json`);
+			slabData = await slabReq.json();
+		} catch(e) {
+			console.error("Svelte slab endpoint rendering error:");
+			console.error(e);
+		}
+		return slabData;
 	}
 }
 
@@ -40,7 +48,7 @@ const resolveProps = (propString) => {
  * @param  {Object} apps    All svelte components available, keyed by name
  * @return {Object}         All svelte apps that were rendered on the page
  */
-export const renderSlabs = (apps, opts) => {
+export const renderSlabs = async (apps, opts) => {
 	opts = {
 		hydrate: true,
 		...opts
@@ -55,7 +63,7 @@ export const renderSlabs = (apps, opts) => {
 
 		const app = apps[slabName];
 		if (app) {
-			const slabProps = resolveProps(slabPropsKey);
+			const slabProps = await resolveProps(slabPropsKey, baseUrl);
 			if (typeof opts.transformProps === 'function') {
 				opts.transformProps(slabProps, target);
 			}
